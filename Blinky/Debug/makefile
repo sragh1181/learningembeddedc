@@ -60,8 +60,8 @@ all: main-build
 main-build: Blinky.elf secondary-outputs
 
 # Tool invocations
-Blinky.elf Blinky.map: $(OBJS) $(USER_OBJS) C:\Users\sragh\STM32CubeIDE\workspace_1.17.0\Blinky\STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Blinky.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\sragh\STM32CubeIDE\workspace_1.17.0\Blinky\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Blinky.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Blinky.elf Blinky.map: $(OBJS) $(USER_OBJS) C:\Users\sragh\Documents\stm32projects\learningembeddedc\Blinky\STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Blinky.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\sragh\Documents\stm32projects\learningembeddedc\Blinky\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Blinky.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

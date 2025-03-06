@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <mpu9250.h>
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,7 +49,9 @@ SPI_HandleTypeDef hspi2;
 
 UART_HandleTypeDef huart2;
 
+
 /* USER CODE BEGIN PV */
+
 
 /* USER CODE END PV */
 
@@ -84,7 +87,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -103,7 +106,7 @@ int main(void)
   MX_I2C1_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
-
+  uint16_t x_acc;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -114,7 +117,7 @@ int main(void)
 
 	  if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
 	  {
-		  uint16_t x_acc = 0;
+
 		  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin , GPIO_PIN_RESET);
 		  HAL_Delay(10);
 		  x_acc = mpu9250read();
