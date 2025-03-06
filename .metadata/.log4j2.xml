@@ -2,7 +2,11 @@
 <Configuration status="info">
     <ThresholdFilter level="INFO"/>
     <Appenders>
+<<<<<<< HEAD
         <RollingFile name="DEBUGFILE" fileName="C:/Users/sragh/STM32CubeIDE/workspace_1.17.0/learningembeddedc/.metadata/.ide.log" filePattern="C:/Users/sragh/STM32CubeIDE/workspace_1.17.0/learningembeddedc/.metadata/.ide.log-%d{yyyy-MM-dd}.log">
+=======
+        <RollingFile name="DEBUGFILE" fileName="C:/Users/sragh/Documents/stm32projects/learningembeddedc/.metadata/.ide.log" filePattern="C:/Users/sragh/Documents/stm32projects/learningembeddedc/.metadata/.ide.log-%d{yyyy-MM-dd}.log">
+>>>>>>> 30dbd73281e1ffdf839e0e62abe9c09d05762b0b
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} [%p] %c{1}:%L - %m%n" />
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true" />
