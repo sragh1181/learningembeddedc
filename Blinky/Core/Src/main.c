@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2025 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -37,6 +37,10 @@
 #define DEVICE_ADDRESS 0x68       // MPU9250 I2C address
 #define REG_DATA 67            // Starting register for accelerometer data
 #define LSB_SENSITIVITY 16384.0
+#define DIR_PIN GPIO_PIN_0
+#define DIR_PORT GPIOA
+#define STEP_PIN GPIO_PIN_1
+#define STEP_PORT GPIOA
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -55,7 +59,6 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -72,20 +75,28 @@ static void MX_TIM1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 float mpu9250read_xacc(void) {
-    uint8_t data[2];              // Buffer to store raw data
-    int16_t raw_x_acc;            // 16-bit signed integer for raw acceleration
-    float x_acc_g;                // Acceleration in g
+	uint8_t data[2];              // Buffer to store raw data
+	int16_t raw_x_acc;            // 16-bit signed integer for raw acceleration
+	float x_acc_g;                // Acceleration in g
 
-    // Read 2 bytes from X-axis high and low registers
-    HAL_I2C_Mem_Read(&hi2c1, (DEVICE_ADDRESS << 1), REG_DATA, I2C_MEMADD_SIZE_8BIT, data, 2, HAL_MAX_DELAY);
+	// Read 2 bytes from X-axis high and low registers
+	HAL_I2C_Mem_Read(&hi2c1, (DEVICE_ADDRESS << 1), REG_DATA,
+			I2C_MEMADD_SIZE_8BIT, data, 2, HAL_MAX_DELAY);
 
-    // Combine the high and low bytes into a signed 16-bit value
-    raw_x_acc = (int16_t)((data[0] << 8) | data[1]);
+	// Combine the high and low bytes into a signed 16-bit value
+	raw_x_acc = (int16_t) ((data[0] << 8) | data[1]);
 
-    // Convert raw acceleration to g
-    x_acc_g = (float)raw_x_acc / LSB_SENSITIVITY;
+	// Convert raw acceleration to g
+	x_acc_g = (float) raw_x_acc / LSB_SENSITIVITY;
 
-    return x_acc_g;
+	return x_acc_g;
+}
+
+int stepDelay = 1000;
+void microDelay (uint16_t delay)
+{
+  __HAL_TIM_SET_COUNTER(&htim1, 0);
+  while (__HAL_TIM_GET_COUNTER(&htim1) < delay);
 }
 /* USER CODE END 0 */
 
@@ -97,9 +108,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
-
-
 
   /* USER CODE END 1 */
 
@@ -126,41 +134,59 @@ int main(void)
   MX_SPI2_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-  float x_acc1;
-  char uart_buf[50];
-
-
+	float x_acc1;
+	char uart_buf[50];
+	 HAL_TIM_Base_Start(&htim1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
+	while (1)
 
-  {
+	{
 
-	  x_acc1 = mpu9250read_xacc();
-	  printf("X-axis acceleration: %.5f\r\n", x_acc1);
-	  //printf("X-axis acceleration (raw): %d deg\n", x_acc);
-      snprintf(uart_buf, sizeof(uart_buf), "X-axis Degrees:  %.5f \r\n", x_acc1);
-      HAL_UART_Transmit(&huart2, (uint8_t*)uart_buf, strlen(uart_buf), HAL_MAX_DELAY);
-	  //HAL_UART_Transmit(&huart2, x_acc[1],sizeof(x_acc[1]), 1000);
-	  HAL_Delay(100);
+		x_acc1 = mpu9250read_xacc();
+		printf("X-axis acceleration: %.5f\r\n", x_acc1);
+		//printf("X-axis acceleration (raw): %d deg\n", x_acc);
+		snprintf(uart_buf, sizeof(uart_buf), "X-axis Degrees:  %.5f \r\n",
+				x_acc1);
+		HAL_UART_Transmit(&huart2, (uint8_t*) uart_buf, strlen(uart_buf),
+				HAL_MAX_DELAY);
+		//HAL_UART_Transmit(&huart2, x_acc[1],sizeof(x_acc[1]), 1000);
+		HAL_Delay(10);
 
-	  if (x_acc1>0.2)
-	  {
-		  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,  GPIO_PIN_SET);
-	  }
-		  //write led high
-		else{
-			  //write led low
-			HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,  GPIO_PIN_RESET);
-		  }
+		if (x_acc1 > 0.2) {
+			HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+		}
+		//write led high
+		else {
+			//write led low
+			HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+		}
 
-
+	    int x;
+	    HAL_GPIO_WritePin(DIR_PORT, DIR_PIN, GPIO_PIN_SET);
+	    for(x=0; x<400; x=x+1)
+	    {
+	      HAL_GPIO_WritePin(STEP_PORT, STEP_PIN, GPIO_PIN_SET);
+	      microDelay(stepDelay);
+	      HAL_GPIO_WritePin(STEP_PORT, STEP_PIN, GPIO_PIN_RESET);
+	      microDelay(stepDelay);
+	    }
+	    HAL_Delay(10);
+	    HAL_GPIO_WritePin(DIR_PORT, DIR_PIN, GPIO_PIN_RESET);
+	    for(x=0; x<400; x=x+1)
+	    {
+	      HAL_GPIO_WritePin(STEP_PORT, STEP_PIN, GPIO_PIN_SET);
+	      microDelay(stepDelay);
+	      HAL_GPIO_WritePin(STEP_PORT, STEP_PIN, GPIO_PIN_RESET);
+	      microDelay(stepDelay);
+	    }
+	    HAL_Delay(10);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-}
+	}
   /* USER CODE END 3 */
 }
 
@@ -302,7 +328,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
+  htim1.Init.Prescaler = 84;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 65535;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -411,16 +437,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-int _write(int file, char *ptr, int len)
-{
-  (void)file;
-  int DataIdx;
+int _write(int file, char *ptr, int len) {
+	(void) file;
+	int DataIdx;
 
-  for (DataIdx = 0; DataIdx < len; DataIdx++)
-  {
-    ITM_SendChar(*ptr++);
-  }
-  return len;
+	for (DataIdx = 0; DataIdx < len; DataIdx++) {
+		ITM_SendChar(*ptr++);
+	}
+	return len;
 }
 
 /* USER CODE END 4 */
@@ -432,11 +456,10 @@ int _write(int file, char *ptr, int len)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1) {
+	}
   /* USER CODE END Error_Handler_Debug */
 }
 

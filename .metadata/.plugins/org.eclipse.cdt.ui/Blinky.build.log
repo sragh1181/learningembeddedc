@@ -1,4 +1,4 @@
-22:08:45 **** Incremental Build of configuration Debug for project Blinky ****
+23:18:27 **** Incremental Build of configuration Debug for project Blinky ****
 make -j12 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -u _printf_float -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
 ../Core/Src/main.c:38: warning: "REG_DATA" redefined
@@ -14,11 +14,11 @@ Finished building target: Blinky.elf
 arm-none-eabi-size  Blinky.elf 
 arm-none-eabi-objdump -h -S Blinky.elf  > "Blinky.list"
    text	   data	    bss	    dec	    hex	filename
-  38336	    472	   2152	  40960	   a000	Blinky.elf
+  38248	    472	   2224	  40944	   9ff0	Blinky.elf
 Finished building: default.size.stdout
  
 Finished building: Blinky.list
  
 
-22:08:47 Build Finished. 0 errors, 1 warnings. (took 2s.83ms)
+23:18:29 Build Finished. 0 errors, 1 warnings. (took 1s.275ms)
 
