@@ -1,17 +1,24 @@
-15:51:34 **** Incremental Build of configuration Debug for project Blinky ****
-make -j16 all 
-arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
-arm-none-eabi-gcc -o "Blinky.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\sragh\Documents\stm32projects\learningembeddedc\Blinky\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Blinky.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+22:08:45 **** Incremental Build of configuration Debug for project Blinky ****
+make -j12 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -u _printf_float -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c:38: warning: "REG_DATA" redefined
+   38 | #define REG_DATA 67            // Starting register for accelerometer data
+      | 
+In file included from ../Core/Src/main.c:26:
+../Core/Inc/mpu9250.h:22: note: this is the location of the previous definition
+   22 | #define REG_DATA 59
+      | 
+arm-none-eabi-gcc -o "Blinky.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\sragh\STM32CubeIDE\workspace_1.17.0\learningembeddedc\Blinky\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Blinky.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -Wl,--end-group
 Finished building target: Blinky.elf
  
 arm-none-eabi-size  Blinky.elf 
 arm-none-eabi-objdump -h -S Blinky.elf  > "Blinky.list"
    text	   data	    bss	    dec	    hex	filename
-  17176	    104	   2152	  19432	   4be8	Blinky.elf
+  38336	    472	   2152	  40960	   a000	Blinky.elf
 Finished building: default.size.stdout
  
 Finished building: Blinky.list
  
 
-15:51:35 Build Finished. 0 errors, 0 warnings. (took 974ms)
+22:08:47 Build Finished. 0 errors, 1 warnings. (took 2s.83ms)
 

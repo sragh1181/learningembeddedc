@@ -34,7 +34,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define DEVICE_ADDRESS 0x68       // MPU9250 I2C address
+#define REG_DATA 67            // Starting register for accelerometer data
+#define LSB_SENSITIVITY 16384.0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -47,8 +49,9 @@ I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi2;
 
-UART_HandleTypeDef huart2;
+TIM_HandleTypeDef htim1;
 
+UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
@@ -61,13 +64,29 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI2_Init(void);
+static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+float mpu9250read_xacc(void) {
+    uint8_t data[2];              // Buffer to store raw data
+    int16_t raw_x_acc;            // 16-bit signed integer for raw acceleration
+    float x_acc_g;                // Acceleration in g
 
+    // Read 2 bytes from X-axis high and low registers
+    HAL_I2C_Mem_Read(&hi2c1, (DEVICE_ADDRESS << 1), REG_DATA, I2C_MEMADD_SIZE_8BIT, data, 2, HAL_MAX_DELAY);
+
+    // Combine the high and low bytes into a signed 16-bit value
+    raw_x_acc = (int16_t)((data[0] << 8) | data[1]);
+
+    // Convert raw acceleration to g
+    x_acc_g = (float)raw_x_acc / LSB_SENSITIVITY;
+
+    return x_acc_g;
+}
 /* USER CODE END 0 */
 
 /**
@@ -87,7 +106,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-	HAL_Init();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -105,8 +124,12 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   MX_SPI2_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-  uint16_t x_acc;
+  float x_acc1;
+  char uart_buf[50];
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -115,27 +138,29 @@ int main(void)
 
   {
 
-	  if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
+	  x_acc1 = mpu9250read_xacc();
+	  printf("X-axis acceleration: %.5f\r\n", x_acc1);
+	  //printf("X-axis acceleration (raw): %d deg\n", x_acc);
+      snprintf(uart_buf, sizeof(uart_buf), "X-axis Degrees:  %.5f \r\n", x_acc1);
+      HAL_UART_Transmit(&huart2, (uint8_t*)uart_buf, strlen(uart_buf), HAL_MAX_DELAY);
+	  //HAL_UART_Transmit(&huart2, x_acc[1],sizeof(x_acc[1]), 1000);
+	  HAL_Delay(100);
+
+	  if (x_acc1>0.2)
 	  {
-
-		  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin , GPIO_PIN_RESET);
-		  HAL_Delay(10);
-		  x_acc = mpu9250read();
-		  HAL_Delay(10);
-		  printf("X-axis acceleration: %d\n", x_acc);
-
-
-
+		  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,  GPIO_PIN_SET);
 	  }
-	  else {
-		  HAL_GPIO_WritePin(LD2_GPIO_Port,  LD2_Pin , GPIO_PIN_SET);
-		  printf("Hello World\n");
+		  //write led high
+		else{
+			  //write led low
+			HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,  GPIO_PIN_RESET);
+		  }
 
-	  }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+}
   /* USER CODE END 3 */
 }
 
@@ -259,6 +284,52 @@ static void MX_SPI2_Init(void)
 }
 
 /**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 0;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 65535;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -309,7 +380,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1|LD2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -317,12 +391,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LD2_Pin */
-  GPIO_InitStruct.Pin = LD2_Pin;
+  /*Configure GPIO pins : PA0 PA1 LD2_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|LD2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

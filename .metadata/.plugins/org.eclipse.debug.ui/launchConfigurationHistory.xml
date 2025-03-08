@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchHistory>
     <launchGroup id="org.eclipse.debug.ui.launchGroup.debug">
-<<<<<<< HEAD
-        <mruHistory/>
-=======
         <mruHistory>
             <launch memento="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;launchConfiguration local=&quot;false&quot; path=&quot;/Blinky/Blinky.launch&quot;/&gt;&#13;&#10;"/>
         </mruHistory>
->>>>>>> 30dbd73281e1ffdf839e0e62abe9c09d05762b0b
         <favorites/>
     </launchGroup>
     <launchGroup id="org.eclipse.debug.ui.launchGroup.profile">
@@ -19,13 +15,9 @@
         <favorites/>
     </launchGroup>
     <launchGroup id="org.eclipse.debug.ui.launchGroup.run">
-<<<<<<< HEAD
-        <mruHistory/>
-=======
         <mruHistory>
             <launch memento="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;launchConfiguration local=&quot;false&quot; path=&quot;/Blinky/Blinky.launch&quot;/&gt;&#13;&#10;"/>
         </mruHistory>
->>>>>>> 30dbd73281e1ffdf839e0e62abe9c09d05762b0b
         <favorites/>
     </launchGroup>
 </launchHistory>
